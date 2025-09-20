@@ -24,15 +24,17 @@ function App() {
 
   },[length,value,isCharacters,isNumber ,setValue])
 
-  const copy = () => {
+  const passwordRef= useRef(null)
+  const copy =useCallback( () => {
+    console.log("copy")
     navigator.clipboard.writeText(value)
     alert('Copied to clipboard!')
-  }
+  },[value])
   return (
     <>
         <h1 className='text-4xl text-center text-white'>HI lengther</h1>
         <div>   
-          <input type='text' value={value} readOnly placeholder='Generated password will be shown here'/>
+          <input type='text' value={value} ref={passwordRef}  readOnly placeholder='Generated password will be shown here'/>
           <button onClick={()=>copy()}>Copy</button>
         </div>
 
