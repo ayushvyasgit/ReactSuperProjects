@@ -1,0 +1,179 @@
+/* =========================
+   VectorShift-like Node UI
+   ========================= */
+
+/* NODE CARD (REDUCED WIDTH) */
+.vs-node-card {
+  width: 300px;                 /* ⬅ reduced */
+  background: #ffffff;
+  border: 1px solid #e6e9ef;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 1px 3px rgba(8, 12, 20, 0.04);
+  font-family: Inter, system-ui, sans-serif;
+  box-sizing: border-box;
+}
+
+/* SELECTED */
+.vs-node-selected {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 6px rgba(206, 207, 252, 0.5);
+}
+
+/* HEADER */
+.vs-node-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.vs-node-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vs-node-icon {
+  font-size: 18px;
+}
+
+.vs-node-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* HEADER RIGHT */
+.vs-node-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vs-node-id-pill {
+  background: #eef2ff;
+  color: #6b62d9;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  min-width: 80px;
+  text-align: center;
+}
+
+/* ICON BUTTONS */
+.vs-header-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.vs-icon-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #475569;
+}
+
+.vs-icon-btn:hover {
+  background: rgba(99, 102, 241, 0.08);
+  color: #111827;
+}
+
+/* BODY */
+.vs-node-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* FIELD */
+.vs-field-row {
+  width: 100%;
+}
+
+.vs-field-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.vs-field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.vs-field-meta {
+  font-size: 12px;
+  padding: 3px 8px;
+  background: #f3efff;
+  color: #6b62d9;
+  border-radius: 999px;
+}
+
+/* TOKEN CHIPS */
+.vs-token-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.vs-token-chip {
+  background: #ede9ff;
+  color: #5b46d9;
+  padding: 5px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.vs-token-x {
+  margin-left: 6px;
+  opacity: 0.7;
+}
+
+/* INPUTS (NARROWER FEEL) */
+.vs-node-input,
+.vs-node-select,
+.vs-node-textarea {
+  width: 100%;
+  padding: 8px;                 /* ⬅ reduced */
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1px solid #e6e9ef;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.vs-node-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* FOCUS */
+.vs-node-input:focus,
+.vs-node-select:focus,
+.vs-node-textarea:focus {
+  border-color: #c7d2fe;
+  box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.06);
+}
+
+/* SELECT WRAPPER */
+.vs-select-wrapper {
+  position: relative;
+}
+
+.vs-select-tag {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: #f3efff;
+  color: #6b62d9;
+  font-size: 11px;
+  padding: 3px 6px;
+  border-radius: 999px;
+  pointer-events: none;
+}
