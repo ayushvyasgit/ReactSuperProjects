@@ -169,7 +169,7 @@ export const BaseNode = ({ id, data, config, selected }) => {
         <div className="vs-node-header-right">
           <div className="vs-node-id-pill">{id}</div>
           <div className="vs-header-controls">
-            <IconButton title="Minimize">⤢</IconButton>
+            <IconButton title="Minimize">•</IconButton>
             <IconButton title="Settings">⚙️</IconButton>
             <IconButton
               title="Delete"
@@ -184,6 +184,23 @@ export const BaseNode = ({ id, data, config, selected }) => {
           </div>
         </div>
       </div>
+
+      {/* DESCRIPTION BOX */}
+      {config.description && (
+        <div className="vs-node-description">
+          {config.description}
+        </div>
+      )}
+
+      {/* SUGGESTION BOX */}
+      {config.suggestion && (
+        <div className="vs-node-suggestion">
+          <span className="vs-suggestion-icon">💡</span>
+          <div>
+            <strong>Suggestion:</strong> {config.suggestion}
+          </div>
+        </div>
+      )}
 
       {/* BODY */}
       <div className="vs-node-body">

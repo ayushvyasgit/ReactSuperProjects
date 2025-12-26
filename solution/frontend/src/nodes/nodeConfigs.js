@@ -2,7 +2,8 @@ export const nodeConfigs = {
   customInput: {
     title: 'Input',
     icon: '📥',
-    description: 'Define input parameters',
+    description: 'Pass data of different types into your workflow',
+    suggestion: 'Give the node a distinct name',
     inputs: [],
     outputs: [
       { id: 'value', label: 'Output' }
@@ -22,7 +23,8 @@ export const nodeConfigs = {
         defaultValue: 'Text',
         options: [
           { value: 'Text', label: 'Text' },
-          { value: 'File', label: 'File' }
+          { value: 'File', label: 'File' },
+          { value: 'Number', label: 'Number' }
         ]
       }
     ],
@@ -64,7 +66,7 @@ export const nodeConfigs = {
   },
 
   llm: {
-    title: 'LLM',
+    title: 'OpenAI',
     icon: '🤖',
     description: 'Language Model processing',
     inputs: [
@@ -76,24 +78,41 @@ export const nodeConfigs = {
     ],
     fields: [
       {
+        name: 'system',
+        label: 'System (Instructions)',
+        type: 'textarea',
+        defaultValue: 'Try to give answer in sarcastic manner',
+        placeholder: 'Enter system instructions',
+        rows: 3
+      },
+      {
+        name: 'prompt',
+        label: 'Prompt',
+        type: 'textarea',
+        defaultValue: '{{input_0.text}}, take the data and process it to give summary',
+        placeholder: 'Enter prompt',
+        rows: 3
+      },
+      {
         name: 'model',
         label: 'Model',
         type: 'select',
-        defaultValue: 'gpt-4',
+        defaultValue: 'gpt-3.5-turbo',
         options: [
-          { value: 'gpt-4', label: 'GPT-4' },
           { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo' },
-          { value: 'claude-3', label: 'Claude 3' }
+          { value: 'gpt-4', label: 'GPT-4' },
+          { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' }
         ]
       },
       {
-        name: 'temperature',
-        label: 'Temperature',
-        type: 'number',
-        defaultValue: 0.7,
-        min: 0,
-        max: 2,
-        step: 0.1
+        name: 'usePersonalKey',
+        label: 'Use Personal API Key',
+        type: 'select',
+        defaultValue: 'No',
+        options: [
+          { value: 'No', label: 'No' },
+          { value: 'Yes', label: 'Yes' }
+        ]
       }
     ],
     styles: {
@@ -125,7 +144,6 @@ export const nodeConfigs = {
     }
   },
 
-  // New Node 3: Database
   database: {
     title: 'Database',
     icon: '🗄️',
@@ -163,7 +181,6 @@ export const nodeConfigs = {
     }
   },
 
-  // New Node 4: API Call
   api: {
     title: 'API Call',
     icon: '🌐',
@@ -202,8 +219,6 @@ export const nodeConfigs = {
       minHeight: 140
     }
   },
-
-  
 };
 
 export default nodeConfigs;
