@@ -3,19 +3,12 @@ export const nodeConfigs = {
     title: 'Input',
     icon: '📥',
     description: 'Pass data of different types into your workflow',
-    suggestion: 'Give the node a distinct name',
+    suggestion: 'Give the node a distinct ID',
     inputs: [],
     outputs: [
       { id: 'value', label: 'Output' }
     ],
     fields: [
-      {
-        name: 'inputName',
-        label: 'Name',
-        type: 'text',
-        defaultValue: 'input_',
-        placeholder: 'Enter input name'
-      },
       {
         name: 'inputType',
         label: 'Type',
@@ -42,13 +35,6 @@ export const nodeConfigs = {
     ],
     outputs: [],
     fields: [
-      {
-        name: 'outputName',
-        label: 'Name',
-        type: 'text',
-        defaultValue: 'output_',
-        placeholder: 'Enter output name'
-      },
       {
         name: 'outputType',
         label: 'Type',
@@ -89,7 +75,7 @@ export const nodeConfigs = {
         name: 'prompt',
         label: 'Prompt',
         type: 'textarea',
-        defaultValue: '{{input_0.text}}, take the data and process it to give summary',
+        defaultValue: '{{Input_1.value}}, take the data and process it to give summary',
         placeholder: 'Enter prompt',
         rows: 3
       },
@@ -124,7 +110,9 @@ export const nodeConfigs = {
     title: 'Text',
     icon: '📝',
     description: 'Text input with variables',
-    inputs: [],
+    inputs: [
+      { id: 'input', label: 'Input' }  // Single input handle
+    ],
     outputs: [
       { id: 'output', label: 'Output' }
     ],
@@ -134,7 +122,7 @@ export const nodeConfigs = {
         label: 'Text',
         type: 'textarea',
         defaultValue: '{{input}}',
-        placeholder: 'Enter text (use {{variable}} for inputs)',
+        placeholder: 'Use {{NodeID.field}} for inputs',
         rows: 4
       }
     ],

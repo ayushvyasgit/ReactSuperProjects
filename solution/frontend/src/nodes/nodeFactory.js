@@ -1,14 +1,8 @@
 // nodes/nodeFactory.js
 import BaseNode from './BaseNode';
-import TextNode from './TextNode';
 import { nodeConfigs } from './nodeConfigs';
 
 export const createNode = (type) => {
-  // Special case for TextNode as it has custom logic
-  if (type === 'text') {
-    return TextNode;
-  }
-
   const config = nodeConfigs[type];
   
   if (!config) {
@@ -16,6 +10,7 @@ export const createNode = (type) => {
     return null;
   }
 
+  // All nodes use BaseNode - no special cases!
   return ({ id, data, selected }) => (
     <BaseNode 
       id={id} 

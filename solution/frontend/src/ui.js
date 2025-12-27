@@ -1,17 +1,20 @@
-// ui.js - Enhanced Pipeline UI with all node types
+// ui.js - Direct node creation with auto-generated names
 import { useState, useRef, useCallback, useEffect } from 'react';
 import ReactFlow, { Controls, Background, MiniMap } from 'reactflow';
 import { useStore } from './store';
 import { shallow } from 'zustand/shallow';
 import { generateNodeTypes } from './nodes/nodeFactory';
+import CustomEdge from './components/CustomEdge';
 
 import 'reactflow/dist/style.css';
 
 const gridSize = 20;
 const proOptions = { hideAttribution: true };
 
-// Generate all node types using the factory
 const nodeTypes = generateNodeTypes();
+const edgeTypes = {
+  custom: CustomEdge,
+};
 
 const selector = (state) => ({
   nodes: state.nodes,
@@ -21,11 +24,13 @@ const selector = (state) => ({
   onNodesChange: state.onNodesChange,
   onEdgesChange: state.onEdgesChange,
   onConnect: state.onConnect,
+  deleteEdge: state.deleteEdge,
 });
 
 export const PipelineUI = () => {
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
+  
   const {
     nodes,
     edges,
@@ -33,12 +38,14 @@ export const PipelineUI = () => {
     addNode,
     onNodesChange,
     onEdgesChange,
-    onConnect
+    onConnect,
+    deleteEdge,
   } = useStore(selector, shallow);
 
   const getInitNodeData = (nodeID, type) => {
     return { id: nodeID, nodeType: `${type}` };
   };
+
   useEffect(() => {
     if (reactFlowInstance && nodes.length === 0) {
       reactFlowInstance.setViewport(
@@ -47,6 +54,34 @@ export const PipelineUI = () => {
       );
     }
   }, [reactFlowInstance, nodes.length]);
+
+  // Edge deletion with keyboard
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        const activeElement = document.activeElement;
+        const isTyping = activeElement && (
+          activeElement.tagName === 'INPUT' ||
+          activeElement.tagName === 'TEXTAREA' ||
+          activeElement.isContentEditable
+        );
+
+        if (!isTyping) {
+          const selectedEdges = edges.filter(e => e.selected);
+          if (selectedEdges.length > 0) {
+            event.preventDefault();
+            selectedEdges.forEach(edge => {
+              deleteEdge(edge.id);
+            });
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [edges, deleteEdge]);
+
   const onDrop = useCallback(
     (event) => {
       event.preventDefault();
@@ -65,6 +100,7 @@ export const PipelineUI = () => {
           y: event.clientY - reactFlowBounds.top,
         });
 
+        // Generate auto name: Input_1, Text_2, OpenAI_3, etc.
         const nodeID = getNodeID(type);
         const newNode = {
           id: nodeID,
@@ -72,7 +108,8 @@ export const PipelineUI = () => {
           position,
           data: getInitNodeData(nodeID, type),
         };
-  
+
+        console.log('Creating node with auto-generated name:', nodeID);
         addNode(newNode);
       }
     },
@@ -83,6 +120,11 @@ export const PipelineUI = () => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
   }, []);
+
+  const handleConnect = useCallback((connection) => {
+    console.log('Manual connection:', connection);
+    onConnect(connection);
+  }, [onConnect]);
 
   return (
     <div style={{ 
@@ -97,18 +139,22 @@ export const PipelineUI = () => {
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
+          onConnect={handleConnect}
           onDrop={onDrop}
           onDragOver={onDragOver}
           onInit={setReactFlowInstance}
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           proOptions={proOptions}
           snapGrid={[gridSize, gridSize]}
           connectionLineType='smoothstep'
           defaultEdgeOptions={{
+            type: 'custom',
             animated: true,
             style: { stroke: '#667eea', strokeWidth: 2 }
           }}
+          elementsSelectable={true}
+          connectOnClick={true}
           attributionPosition="bottom-left"
         >
           <Background 
@@ -127,17 +173,13 @@ export const PipelineUI = () => {
           />
           <MiniMap 
             nodeColor={(node) => {
-              // Color nodes in minimap based on type
               const colors = {
                 customInput: '#667eea',
                 customOutput: '#f093fb',
                 llm: '#4facfe',
                 text: '#43e97b',
-                transform: '#fa709a',
-                condition: '#a8edea',
                 database: '#ffecd2',
                 api: '#ff9a9e',
-                aggregator: '#30cfd0'
               };
               return colors[node.type] || '#667eea';
             }}
@@ -171,6 +213,8 @@ export const PipelineUI = () => {
           </p>
         </div>
       )}
+
+      
     </div>
   );
 };
