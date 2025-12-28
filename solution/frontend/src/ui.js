@@ -158,8 +158,9 @@ export const PipelineUI = () => {
           attributionPosition="bottom-left"
         >
           <Background 
-            color="#cbd5e0" 
+            color="#b7c6dbff" 
             gap={gridSize}
+            size={1.5}
             style={{ background: '#f8f9fa' }}
           />
           <Controls 

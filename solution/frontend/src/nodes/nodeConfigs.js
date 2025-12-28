@@ -1,9 +1,10 @@
+// nodeConfigs.js - Updated with .value fields for all nodes
 export const nodeConfigs = {
   customInput: {
     title: 'Input',
     icon: '📥',
     description: 'Pass data of different types into your workflow',
-    suggestion: 'Give the node a distinct ID',
+    suggestion: 'Enter your input data and reference it as {{NodeID.value}}',
     inputs: [],
     outputs: [
       { id: 'value', label: 'Output' }
@@ -19,6 +20,14 @@ export const nodeConfigs = {
           { value: 'File', label: 'File' },
           { value: 'Number', label: 'Number' }
         ]
+      },
+      {
+        name: 'value',
+        label: 'Input Value',
+        type: 'textarea',
+        defaultValue: '',
+        placeholder: 'Enter your input data here...',
+        rows: 4
       }
     ],
     styles: {
@@ -44,6 +53,14 @@ export const nodeConfigs = {
           { value: 'Text', label: 'Text' },
           { value: 'Image', label: 'Image' }
         ]
+      },
+      {
+        name: 'value',
+        label: 'Output Value',
+        type: 'textarea',
+        defaultValue: '{{input.value}}',
+        placeholder: 'Reference data using {{NodeID.value}}',
+        rows: 3
       }
     ],
     styles: {
@@ -60,14 +77,14 @@ export const nodeConfigs = {
       { id: 'prompt', label: 'Prompt' }
     ],
     outputs: [
-      { id: 'response', label: 'Response' }
+      { id: 'value', label: 'Response' }
     ],
     fields: [
       {
         name: 'system',
         label: 'System (Instructions)',
         type: 'textarea',
-        defaultValue: 'Try to give answer in sarcastic manner',
+        defaultValue: 'You are a helpful assistant.',
         placeholder: 'Enter system instructions',
         rows: 3
       },
@@ -75,8 +92,8 @@ export const nodeConfigs = {
         name: 'prompt',
         label: 'Prompt',
         type: 'textarea',
-        defaultValue: '{{Input_1.value}}, take the data and process it to give summary',
-        placeholder: 'Enter prompt',
+        defaultValue: '{{Input_1.value}}',
+        placeholder: 'Use {{NodeID.value}} to reference other nodes',
         rows: 3
       },
       {
@@ -109,20 +126,20 @@ export const nodeConfigs = {
   text: {
     title: 'Text',
     icon: '📝',
-    description: 'Text input with variables',
+    description: 'Text processing and transformation',
     inputs: [
-      { id: 'input', label: 'Input' }  // Single input handle
+      { id: 'input', label: 'Input' }
     ],
     outputs: [
-      { id: 'output', label: 'Output' }
+      { id: 'value', label: 'Output' }
     ],
     fields: [
       {
-        name: 'text',
-        label: 'Text',
+        name: 'value',
+        label: 'Text Content',
         type: 'textarea',
-        defaultValue: '{{input}}',
-        placeholder: 'Use {{NodeID.field}} for inputs',
+        defaultValue: '{{Input_1.value}}',
+        placeholder: 'Use {{NodeID.value}} for references',
         rows: 4
       }
     ],
@@ -141,7 +158,7 @@ export const nodeConfigs = {
       { id: 'params', label: 'Parameters' }
     ],
     outputs: [
-      { id: 'result', label: 'Result' },
+      { id: 'value', label: 'Result' },
       { id: 'error', label: 'Error' }
     ],
     fields: [
@@ -161,6 +178,14 @@ export const nodeConfigs = {
         label: 'Connection',
         type: 'text',
         placeholder: 'Connection string'
+      },
+      {
+        name: 'query',
+        label: 'Query',
+        type: 'textarea',
+        defaultValue: '',
+        placeholder: 'SELECT * FROM table WHERE id = {{Input_1.value}}',
+        rows: 3
       }
     ],
     styles: {
@@ -179,7 +204,7 @@ export const nodeConfigs = {
       { id: 'headers', label: 'Headers' }
     ],
     outputs: [
-      { id: 'response', label: 'Response' },
+      { id: 'value', label: 'Response' },
       { id: 'status', label: 'Status' }
     ],
     fields: [
@@ -199,7 +224,15 @@ export const nodeConfigs = {
         name: 'endpoint',
         label: 'Endpoint',
         type: 'text',
-        placeholder: 'https://api.example.com'
+        placeholder: 'https://api.example.com/data'
+      },
+      {
+        name: 'body',
+        label: 'Request Body',
+        type: 'textarea',
+        defaultValue: '',
+        placeholder: '{"data": "{{Input_1.value}}"}',
+        rows: 3
       }
     ],
     styles: {

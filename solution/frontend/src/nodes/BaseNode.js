@@ -1,5 +1,5 @@
-// src/nodes/BaseNode.js
-import React, { useState, useEffect } from "react";
+// src/nodes/BaseNode.js - Enhanced with .value field and auto-connection
+import React, { useState, useEffect, useRef } from "react";
 import { Handle, Position } from "reactflow";
 import "./nodeStyles.css";
 import { useStore } from "../store";
@@ -17,11 +17,16 @@ export const BaseNode = ({ id, data, config, selected }) => {
   const [idError, setIdError] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
   
+  // Store previous values to detect changes
+  const prevFieldValuesRef = useRef({});
+  
   const deleteNode = useStore((state) => state.deleteNode);
   const updateNodeField = useStore((state) => state.updateNodeField);
   const validateName = useStore((state) => state.validateName);
   const renameNode = useStore((state) => state.renameNode);
   const nodes = useStore((state) => state.nodes);
+  const autoConnectFromReferences = useStore((state) => state.autoConnectFromReferences);
+  const removeAutoConnections = useStore((state) => state.removeAutoConnections);
 
   // Reset delete confirmation after 3 seconds
   useEffect(() => {
@@ -43,13 +48,42 @@ export const BaseNode = ({ id, data, config, selected }) => {
       initialValues[field.name] =
         (data && data[field.name]) ?? field.defaultValue ?? "";
     });
+    
+    // 🆕 Always initialize a 'value' field for storing output
+    if (!initialValues.hasOwnProperty('value')) {
+      initialValues.value = (data && data.value) ?? "";
+    }
+    
     setFieldValues(initialValues);
+    prevFieldValuesRef.current = initialValues;
   }, [data, config.fields]);
 
   const handleFieldChange = (fieldName, value) => {
+    const oldValue = fieldValues[fieldName] || "";
     const newValues = { ...fieldValues, [fieldName]: value };
+    
     setFieldValues(newValues);
     updateNodeField(id, fieldName, value);
+
+    // 🆕 AUTO-CONNECTION LOGIC - Only for fields with {{}} references
+    if (value && typeof value === 'string' && value.includes('{{')) {
+      console.log(`📝 Field changed in ${id}.${fieldName}: "${value}"`);
+      
+      // Remove old connections that are no longer referenced
+      if (oldValue && oldValue.includes('{{')) {
+        removeAutoConnections(id, fieldName, oldValue, value);
+      }
+      
+      // Create new connections for new references
+      setTimeout(() => {
+        autoConnectFromReferences(id, fieldName, value);
+      }, 100);
+    } else if (oldValue && oldValue.includes('{{')) {
+      // Field cleared or changed to non-reference value
+      removeAutoConnections(id, fieldName, oldValue, value);
+    }
+
+    prevFieldValuesRef.current = newValues;
 
     if (config.onFieldChange) {
       config.onFieldChange(id, fieldName, value);
@@ -104,7 +138,7 @@ export const BaseNode = ({ id, data, config, selected }) => {
 
   const renderChipsForField = (name) => {
     const txt = String(fieldValues[name] ?? "");
-    const regex = /\{\{\s*([a-zA-Z_$][-a-zA-Z0-9_$.]*)\s*\}\}/g;
+    const regex = /\{\{\s*([a-zA-Z_$][-a-zA-Z0-9_$.]+)\s*\}\}/g;
     const matches = [];
     let m;
     while ((m = regex.exec(txt)) !== null) {
@@ -118,8 +152,32 @@ export const BaseNode = ({ id, data, config, selected }) => {
     return (
       <div className="vs-token-row">
         {matches.map((variable) => {
-          const sourceNodeId = variable.includes('.') ? variable.split('.')[0] : variable;
-          const isValid = nodes.some(n => n.id === sourceNodeId);
+          // Must have format: NodeID.field (specifically NodeID.value)
+          const parts = variable.split('.');
+          if (parts.length !== 2) {
+            return (
+              <span 
+                key={variable} 
+                className="vs-token-chip"
+                style={{
+                  background: '#fee2e2',
+                  color: '#dc2626',
+                }}
+              >
+                {variable} <span className="vs-token-x">✗</span>
+              </span>
+            );
+          }
+
+          const sourceNodeId = parts[0];
+          const fieldName = parts[1];
+          
+          // Check if node exists
+          const nodeExists = nodes.some(n => n.id === sourceNodeId);
+          
+          // Must be .value field
+          const isValidFormat = fieldName === 'value';
+          const isValid = nodeExists && isValidFormat;
           
           return (
             <span 
@@ -129,6 +187,7 @@ export const BaseNode = ({ id, data, config, selected }) => {
                 background: isValid ? '#ede9ff' : '#fee2e2',
                 color: isValid ? '#5b46d9' : '#dc2626',
               }}
+              title={!nodeExists ? 'Node not found' : !isValidFormat ? 'Must use .value' : 'Valid reference'}
             >
               {variable} <span className="vs-token-x">{isValid ? '✓' : '✗'}</span>
             </span>
@@ -165,20 +224,17 @@ export const BaseNode = ({ id, data, config, selected }) => {
 
       case "select":
         return (
-          <div className="vs-select-wrapper">
-            <select
-              className="vs-node-select"
-              value={value}
-              onChange={(e) => handleFieldChange(field.name, e.target.value)}
-            >
-              {field.options?.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-            <span className="vs-select-tag">Dropdown</span>
-          </div>
+          <select
+            className="vs-node-select"
+            value={value}
+            onChange={(e) => handleFieldChange(field.name, e.target.value)}
+          >
+            {field.options?.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
         );
 
       case "number":
