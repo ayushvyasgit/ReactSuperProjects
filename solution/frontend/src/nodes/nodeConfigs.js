@@ -52,7 +52,7 @@ export const nodeConfigs = {
   },
 
   llm: {
-    title: 'OpenAI',
+    title: 'LLM',
     icon: '🤖',
     description: 'Language Model processing',
     inputs: [

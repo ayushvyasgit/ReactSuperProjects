@@ -154,43 +154,6 @@ export const useStore = create((set, get) => ({
       set({ edges: newEdges });
     },
     
-    addEdgeProgrammatically: (edgeConfig) => {
-      const { source, target, sourceHandle, targetHandle } = edgeConfig;
-      
-      const exists = get().edges.some(
-        e => e.source === source && 
-            e.target === target && 
-            e.sourceHandle === sourceHandle && 
-            e.targetHandle === targetHandle
-      );
-      
-      if (!exists) {
-        const newEdge = {
-          id: `edge-${source}-${sourceHandle || 'default'}-${target}-${targetHandle || 'default'}-${Date.now()}`,
-          source,
-          target,
-          sourceHandle,
-          targetHandle,
-          type: 'custom',
-          animated: true,
-          style: { 
-            stroke: '#8B5CF6', 
-            strokeWidth: 2,
-            strokeDasharray: '5, 5'
-          },
-          markerEnd: {
-            type: MarkerType.Arrow,
-            height: '20px',
-            width: '20px',
-            color: '#8B5CF6'
-          }
-        };
-        
-        console.log('Creating auto-edge:', newEdge);
-        set({ edges: [...get().edges, newEdge] });
-      }
-    },
-    
     updateNodeField: (nodeId, fieldName, fieldValue) => {
       set({
         nodes: get().nodes.map((node) => {

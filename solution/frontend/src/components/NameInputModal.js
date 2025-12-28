@@ -18,7 +18,7 @@ export const NameInputModal = ({ nodeType, onConfirm, onCancel, existingNames })
     const typeMap = {
       customInput: 'Input',
       customOutput: 'Output',
-      llm: 'OpenAI',
+      llm: 'LLM',
       text: 'Text',
       database: 'Database',
       api: 'API'

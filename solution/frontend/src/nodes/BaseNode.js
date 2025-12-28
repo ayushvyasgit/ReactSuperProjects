@@ -1,5 +1,5 @@
 // src/nodes/BaseNode.js
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Handle, Position } from "reactflow";
 import "./nodeStyles.css";
 import { useStore } from "../store";
@@ -16,16 +16,12 @@ export const BaseNode = ({ id, data, config, selected }) => {
   const [isEditingId, setIsEditingId] = useState(false);
   const [idError, setIdError] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const deletedEdgesRef = useRef(new Set()); // Track manually deleted edges
   
   const deleteNode = useStore((state) => state.deleteNode);
   const updateNodeField = useStore((state) => state.updateNodeField);
-  const addEdgeProgrammatically = useStore((state) => state.addEdgeProgrammatically);
-  const deleteEdge = useStore((state) => state.deleteEdge);
   const validateName = useStore((state) => state.validateName);
   const renameNode = useStore((state) => state.renameNode);
   const nodes = useStore((state) => state.nodes);
-  const edges = useStore((state) => state.edges);
 
   // Reset delete confirmation after 3 seconds
   useEffect(() => {
@@ -49,182 +45,6 @@ export const BaseNode = ({ id, data, config, selected }) => {
     });
     setFieldValues(initialValues);
   }, [data, config.fields]);
-
-  // Auto-connect logic - only for new variables
-  useEffect(() => {
-    const allVariables = new Set();
-
-    config.fields?.forEach((field) => {
-      if (field.type === "textarea") {
-        const txt = String(fieldValues[field.name] ?? "");
-        const regex = /\{\{\s*([a-zA-Z_$][-a-zA-Z0-9_$.]*)\s*\}\}/g;
-        let m;
-        while ((m = regex.exec(txt)) !== null) {
-          allVariables.add(m[1]);
-        }
-      }
-    });
-
-    allVariables.forEach(variable => {
-      let sourceNodeId, sourceHandleId;
-      
-      if (variable.includes('.')) {
-        const parts = variable.split('.');
-        sourceNodeId = parts[0];
-        sourceHandleId = `${sourceNodeId}-${parts[1]}`;
-      } else {
-        sourceNodeId = variable;
-        sourceHandleId = `${sourceNodeId}-value`;
-      }
-      
-      const sourceNode = nodes.find(n => n.id === sourceNodeId);
-      
-      if (sourceNode) {
-        const inputHandles = config.inputs || [];
-        let targetHandleId;
-        
-        if (inputHandles.length === 0) {
-          return;
-        } else if (inputHandles.length === 1) {
-          targetHandleId = `${id}-${inputHandles[0].id}`;
-        } else {
-          const middleIndex = Math.floor(inputHandles.length / 2);
-          targetHandleId = `${id}-${inputHandles[middleIndex].id}`;
-        }
-        
-        // Create unique key for this connection
-        const connectionKey = `${sourceNodeId}-${sourceHandleId}-${id}-${targetHandleId}`;
-        
-        // Skip if this connection was manually deleted
-        if (deletedEdgesRef.current.has(connectionKey)) {
-          console.log(`[${id}] Skipping auto-connect - edge was manually deleted:`, connectionKey);
-          return;
-        }
-        
-        // Check if connection already exists
-        const edgeExists = edges.some(
-          e => e.source === sourceNodeId && 
-               e.target === id && 
-               e.sourceHandle === sourceHandleId &&
-               e.targetHandle === targetHandleId
-        );
-        
-        if (!edgeExists) {
-          console.log(`[${id}] Creating auto-connection: ${sourceNodeId} → ${id}`);
-          addEdgeProgrammatically({
-            source: sourceNodeId,
-            target: id,
-            sourceHandle: sourceHandleId,
-            targetHandle: targetHandleId,
-          });
-        }
-      }
-    });
-
-    // Clean up auto-created edges for removed variables
-    const myEdges = edges.filter(e => e.target === id);
-    myEdges.forEach(edge => {
-      const isAutoEdge = edge.style?.strokeDasharray === '5, 5';
-      
-      if (isAutoEdge) {
-        const sourceVariable = edge.sourceHandle?.replace(`${edge.source}-`, '');
-        const fullVariable = sourceVariable ? `${edge.source}.${sourceVariable}` : edge.source;
-        
-        if (!allVariables.has(fullVariable) && !allVariables.has(edge.source)) {
-          console.log(`[${id}] Removing edge for deleted variable`);
-          deleteEdge(edge.id);
-        }
-      }
-    });
-  }, [fieldValues, nodes, edges, id, config.fields, config.inputs, addEdgeProgrammatically, deleteEdge]);
-
-  // Track when edges are manually deleted
-  useEffect(() => {
-    // Get current edge connections
-    const currentConnections = new Set(
-      edges
-        .filter(e => e.target === id)
-        .map(e => `${e.source}-${e.sourceHandle}-${e.target}-${e.targetHandle}`)
-    );
-
-    // Check if any expected connections are missing (were deleted)
-    const allVariables = new Set();
-    config.fields?.forEach((field) => {
-      if (field.type === "textarea") {
-        const txt = String(fieldValues[field.name] ?? "");
-        const regex = /\{\{\s*([a-zA-Z_$][-a-zA-Z0-9_$.]*)\s*\}\}/g;
-        let m;
-        while ((m = regex.exec(txt)) !== null) {
-          allVariables.add(m[1]);
-        }
-      }
-    });
-
-    allVariables.forEach(variable => {
-      let sourceNodeId, sourceHandleId;
-      
-      if (variable.includes('.')) {
-        const parts = variable.split('.');
-        sourceNodeId = parts[0];
-        sourceHandleId = `${sourceNodeId}-${parts[1]}`;
-      } else {
-        sourceNodeId = variable;
-        sourceHandleId = `${sourceNodeId}-value`;
-      }
-
-      const inputHandles = config.inputs || [];
-      let targetHandleId;
-      
-      if (inputHandles.length === 1) {
-        targetHandleId = `${id}-${inputHandles[0].id}`;
-      } else if (inputHandles.length > 1) {
-        const middleIndex = Math.floor(inputHandles.length / 2);
-        targetHandleId = `${id}-${inputHandles[middleIndex].id}`;
-      }
-
-      if (targetHandleId) {
-        const connectionKey = `${sourceNodeId}-${sourceHandleId}-${id}-${targetHandleId}`;
-        
-        // If variable exists but connection doesn't, mark as manually deleted
-        if (!currentConnections.has(connectionKey)) {
-          deletedEdgesRef.current.add(connectionKey);
-          console.log(`[${id}] Marking connection as manually deleted:`, connectionKey);
-        }
-      }
-    });
-  }, [edges, fieldValues, id, config.fields, config.inputs]);
-
-  // Clear deleted edges tracking when variable is removed from text
-  useEffect(() => {
-    const allVariables = new Set();
-    config.fields?.forEach((field) => {
-      if (field.type === "textarea") {
-        const txt = String(fieldValues[field.name] ?? "");
-        const regex = /\{\{\s*([a-zA-Z_$][-a-zA-Z0-9_$.]*)\s*\}\}/g;
-        let m;
-        while ((m = regex.exec(txt)) !== null) {
-          allVariables.add(m[1]);
-        }
-      }
-    });
-
-    // Remove tracking for variables that no longer exist
-    const keysToRemove = [];
-    deletedEdgesRef.current.forEach(key => {
-      const [sourceNodeId] = key.split('-');
-      const hasVariable = Array.from(allVariables).some(v => 
-        v === sourceNodeId || v.startsWith(sourceNodeId + '.')
-      );
-      if (!hasVariable) {
-        keysToRemove.push(key);
-      }
-    });
-
-    keysToRemove.forEach(key => {
-      deletedEdgesRef.current.delete(key);
-      console.log(`[${id}] Cleared manual deletion tracking:`, key);
-    });
-  }, [fieldValues, id, config.fields]);
 
   const handleFieldChange = (fieldName, value) => {
     const newValues = { ...fieldValues, [fieldName]: value };

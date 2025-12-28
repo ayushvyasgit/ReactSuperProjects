@@ -5,7 +5,7 @@ import DraggableNode from '../DraggableNode';
 export const PipelineToolbar = () => {
   const nodeTypes = [
     { type: 'customInput', label: 'Input', icon: '📥' },
-    { type: 'llm', label: 'OpenAI', icon: '🤖' },
+    { type: 'llm', label: 'LLM', icon: '🤖' },
     { type: 'customOutput', label: 'Output', icon: '📤' },
     { type: 'text', label: 'Text', icon: '📝' },
     { type: 'database', label: 'Database', icon: '🗄️' },
@@ -23,8 +23,8 @@ export const PipelineToolbar = () => {
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#111827' }}>New Workflow</h2>
-          <div style={{ fontSize: 13, color: '#6b7280' }}>Drag nodes to canvas</div>
+          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#111827' }}>VectorShift.ai</h2>
+          <div style={{ fontSize: 13, color: '#6b7280' }}>Build AI Workflows</div>
         </div>
 
         <div style={{
