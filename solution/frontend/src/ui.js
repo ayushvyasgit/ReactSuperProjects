@@ -1,4 +1,4 @@
-// ui.js - Direct node creation with auto-generated names
+// ui.js - Adjusted canvas height for fixed bottom buttons
 import { useState, useRef, useCallback, useEffect } from 'react';
 import ReactFlow, { Controls, Background, MiniMap } from 'reactflow';
 import { useStore } from './store';
@@ -100,7 +100,6 @@ export const PipelineUI = () => {
           y: event.clientY - reactFlowBounds.top,
         });
 
-        // Generate auto name: Input_1, Text_2, OpenAI_3, etc.
         const nodeID = getNodeID(type);
         const newNode = {
           id: nodeID,
@@ -129,7 +128,7 @@ export const PipelineUI = () => {
   return (
     <div style={{ 
       width: '100%', 
-      height: 'calc(100vh - 240px)',
+      height: 'calc(100vh - 210px)', // Adjusted: 140px toolbar + 70px button bar
       background: 'linear-gradient(to bottom, #f8f9fa, #ffffff)',
       position: 'relative'
     }}>
@@ -178,8 +177,12 @@ export const PipelineUI = () => {
                 customInput: '#667eea',
                 customOutput: '#f093fb',
                 llm: '#4facfe',
+                chatgpt: '#10a37f',
+                gemini: '#4285f4',
                 text: '#43e97b',
                 database: '#ffecd2',
+                mongodb: '#13aa52',
+                wordGenerator: '#2b5797',
                 api: '#ff9a9e',
               };
               return colors[node.type] || '#667eea';
@@ -210,12 +213,10 @@ export const PipelineUI = () => {
             Start Building Your Pipeline
           </h3>
           <p style={{ margin: 0, fontSize: '14px' }}>
-            Drag and drop nodes from above to get started
+            Drag and drop nodes from the toolbar above
           </p>
         </div>
       )}
-
-      
     </div>
   );
 };

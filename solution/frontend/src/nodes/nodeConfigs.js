@@ -1,4 +1,5 @@
-// nodeConfigs.js - Updated with .value fields for all nodes
+// nodeConfigs.js - Enhanced with ChatGPT, Gemini, Word Generator, and MongoDB
+
 export const nodeConfigs = {
   customInput: {
     title: 'Input',
@@ -58,7 +59,7 @@ export const nodeConfigs = {
         name: 'value',
         label: 'Output Value',
         type: 'textarea',
-        defaultValue: '{{input.value}}',
+        defaultValue: '{{Input_1.value}}',
         placeholder: 'Reference data using {{NodeID.value}}',
         rows: 3
       }
@@ -68,10 +69,278 @@ export const nodeConfigs = {
     }
   },
 
-  llm: {
-    title: 'LLM',
+  // 🆕 CHATGPT NODE
+  chatgpt: {
+    title: 'ChatGPT',
     icon: '🤖',
-    description: 'Language Model processing',
+    description: 'OpenAI GPT-4 language model with real API integration',
+    suggestion: 'Add your OpenAI API key to enable AI-powered responses',
+    inputs: [
+      { id: 'system', label: 'System' },
+      { id: 'prompt', label: 'Prompt' }
+    ],
+    outputs: [
+      { id: 'value', label: 'Response' }
+    ],
+    fields: [
+      {
+        name: 'apiKey',
+        label: 'OpenAI API Key',
+        type: 'password',
+        defaultValue: '',
+        placeholder: 'sk-...',
+        isPassword: true
+      },
+      {
+        name: 'model',
+        label: 'Model',
+        type: 'select',
+        defaultValue: 'gpt-4',
+        options: [
+          { value: 'gpt-4', label: 'GPT-4' },
+          { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
+          { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo' }
+        ]
+      },
+      {
+        name: 'system',
+        label: 'System Instructions',
+        type: 'textarea',
+        defaultValue: 'You are a helpful assistant.',
+        placeholder: 'System instructions...',
+        rows: 3
+      },
+      {
+        name: 'prompt',
+        label: 'Prompt',
+        type: 'textarea',
+        defaultValue: '{{Input_1.value}}',
+        placeholder: 'Use {{NodeID.value}} to reference data',
+        rows: 4
+      },
+      {
+        name: 'temperature',
+        label: 'Temperature',
+        type: 'number',
+        defaultValue: '0.7',
+        min: 0,
+        max: 2,
+        step: 0.1
+      },
+      {
+        name: 'maxTokens',
+        label: 'Max Tokens',
+        type: 'number',
+        defaultValue: '1000',
+        min: 1,
+        max: 4000
+      }
+    ],
+    styles: {
+      background: 'linear-gradient(135deg, #10a37f 0%, #0d8a6b 100%)'
+    }
+  },
+
+  // 🆕 GEMINI NODE
+  gemini: {
+    title: 'Gemini',
+    icon: '✨',
+    description: 'Google Gemini AI model with real API integration',
+    suggestion: 'Add your Google AI API key to enable Gemini responses',
+    inputs: [
+      { id: 'prompt', label: 'Prompt' }
+    ],
+    outputs: [
+      { id: 'value', label: 'Response' }
+    ],
+    fields: [
+      {
+        name: 'apiKey',
+        label: 'Google AI API Key',
+        type: 'password',
+        defaultValue: '',
+        placeholder: 'AIza...',
+        isPassword: true
+      },
+      {
+        name: 'model',
+        label: 'Model',
+        type: 'select',
+        defaultValue: 'gemini-pro',
+        options: [
+          { value: 'gemini-pro', label: 'Gemini Pro' },
+          { value: 'gemini-pro-vision', label: 'Gemini Pro Vision' }
+        ]
+      },
+      {
+        name: 'prompt',
+        label: 'Prompt',
+        type: 'textarea',
+        defaultValue: '{{Input_1.value}}',
+        placeholder: 'Use {{NodeID.value}} to reference data',
+        rows: 4
+      },
+      {
+        name: 'temperature',
+        label: 'Temperature',
+        type: 'number',
+        defaultValue: '0.7',
+        min: 0,
+        max: 1,
+        step: 0.1
+      },
+      {
+        name: 'maxTokens',
+        label: 'Max Output Tokens',
+        type: 'number',
+        defaultValue: '1000',
+        min: 1,
+        max: 2048
+      }
+    ],
+    styles: {
+      background: 'linear-gradient(135deg, #4285f4 0%, #34a853 100%)'
+    }
+  },
+
+  // 🆕 WORD GENERATOR NODE
+  wordGenerator: {
+    title: 'Word Generator',
+    icon: '📄',
+    description: 'Generate Microsoft Word documents from pipeline data',
+    suggestion: 'Create DOCX files and download them automatically',
+    inputs: [
+      { id: 'content', label: 'Content' },
+      { id: 'title', label: 'Title' }
+    ],
+    outputs: [
+      { id: 'value', label: 'File Path' },
+      { id: 'status', label: 'Status' }
+    ],
+    fields: [
+      {
+        name: 'title',
+        label: 'Document Title',
+        type: 'text',
+        defaultValue: 'Generated Document',
+        placeholder: 'Document title...'
+      },
+      {
+        name: 'content',
+        label: 'Content',
+        type: 'textarea',
+        defaultValue: '{{ChatGPT_1.value}}',
+        placeholder: 'Use {{NodeID.value}} for content',
+        rows: 6
+      },
+      {
+        name: 'filename',
+        label: 'Filename',
+        type: 'text',
+        defaultValue: 'output.docx',
+        placeholder: 'filename.docx'
+      },
+      {
+        name: 'autoDownload',
+        label: 'Auto Download',
+        type: 'select',
+        defaultValue: 'Yes',
+        options: [
+          { value: 'Yes', label: 'Yes' },
+          { value: 'No', label: 'No' }
+        ]
+      },
+      {
+        name: 'fontSize',
+        label: 'Font Size',
+        type: 'number',
+        defaultValue: '12',
+        min: 8,
+        max: 72
+      }
+    ],
+    styles: {
+      background: 'linear-gradient(135deg, #2b5797 0%, #1e3a5f 100%)'
+    }
+  },
+
+  // 🆕 MONGODB NODE
+  mongodb: {
+    title: 'MongoDB',
+    icon: '🍃',
+    description: 'Store and retrieve data from MongoDB',
+    suggestion: 'Save pipeline results to MongoDB collections',
+    inputs: [
+      { id: 'data', label: 'Data' }
+    ],
+    outputs: [
+      { id: 'value', label: 'Document ID' },
+      { id: 'status', label: 'Status' }
+    ],
+    fields: [
+      {
+        name: 'connectionString',
+        label: 'Connection String',
+        type: 'password',
+        defaultValue: 'mongodb://localhost:27017',
+        placeholder: 'mongodb://username:password@host:port',
+        isPassword: true
+      },
+      {
+        name: 'database',
+        label: 'Database',
+        type: 'text',
+        defaultValue: 'pipeline_db',
+        placeholder: 'Database name'
+      },
+      {
+        name: 'collection',
+        label: 'Collection',
+        type: 'text',
+        defaultValue: 'results',
+        placeholder: 'Collection name'
+      },
+      {
+        name: 'data',
+        label: 'Data to Store',
+        type: 'textarea',
+        defaultValue: '{{ChatGPT_1.value}}',
+        placeholder: 'Use {{NodeID.value}} to reference data',
+        rows: 4
+      },
+      {
+        name: 'operation',
+        label: 'Operation',
+        type: 'select',
+        defaultValue: 'insertOne',
+        options: [
+          { value: 'insertOne', label: 'Insert One' },
+          { value: 'insertMany', label: 'Insert Many' },
+          { value: 'updateOne', label: 'Update One' },
+          { value: 'find', label: 'Find' }
+        ]
+      },
+      {
+        name: 'includeTimestamp',
+        label: 'Include Timestamp',
+        type: 'select',
+        defaultValue: 'Yes',
+        options: [
+          { value: 'Yes', label: 'Yes' },
+          { value: 'No', label: 'No' }
+        ]
+      }
+    ],
+    styles: {
+      background: 'linear-gradient(135deg, #13aa52 0%, #0e8a3f 100%)'
+    }
+  },
+
+  // ORIGINAL NODES (kept for compatibility)
+  llm: {
+    title: 'LLM (Generic)',
+    icon: '🤖',
+    description: 'Generic Language Model processing',
     inputs: [
       { id: 'system', label: 'System' },
       { id: 'prompt', label: 'Prompt' }
@@ -105,16 +374,6 @@ export const nodeConfigs = {
           { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo' },
           { value: 'gpt-4', label: 'GPT-4' },
           { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' }
-        ]
-      },
-      {
-        name: 'usePersonalKey',
-        label: 'Use Personal API Key',
-        type: 'select',
-        defaultValue: 'No',
-        options: [
-          { value: 'No', label: 'No' },
-          { value: 'Yes', label: 'Yes' }
         ]
       }
     ],

@@ -1,4 +1,26 @@
+# Backend Requirements for Enhanced VectorShift Pipeline
+
+# Core Framework
 fastapi
-uvicorn
+uvicorn[standard]
 pydantic
 python-multipart
+
+# AI/ML APIs
+openai
+google-generativeai
+
+# Document Generation
+python-docx
+
+# Database
+pymongo
+
+# Utilities
+python-dotenv
+requests
+
+# Optional: For better development
+black
+pytest
+httpx

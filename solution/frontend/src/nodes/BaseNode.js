@@ -1,4 +1,4 @@
-// src/nodes/BaseNode.js - Enhanced with .value field and auto-connection
+// src/nodes/BaseNode.js - Enhanced with password field support
 import React, { useState, useEffect, useRef } from "react";
 import { Handle, Position } from "reactflow";
 import "./nodeStyles.css";
@@ -16,8 +16,8 @@ export const BaseNode = ({ id, data, config, selected }) => {
   const [isEditingId, setIsEditingId] = useState(false);
   const [idError, setIdError] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showPasswords, setShowPasswords] = useState({});
   
-  // Store previous values to detect changes
   const prevFieldValuesRef = useRef({});
   
   const deleteNode = useStore((state) => state.deleteNode);
@@ -28,7 +28,6 @@ export const BaseNode = ({ id, data, config, selected }) => {
   const autoConnectFromReferences = useStore((state) => state.autoConnectFromReferences);
   const removeAutoConnections = useStore((state) => state.removeAutoConnections);
 
-  // Reset delete confirmation after 3 seconds
   useEffect(() => {
     if (confirmDelete) {
       const timer = setTimeout(() => {
@@ -49,7 +48,6 @@ export const BaseNode = ({ id, data, config, selected }) => {
         (data && data[field.name]) ?? field.defaultValue ?? "";
     });
     
-    // 🆕 Always initialize a 'value' field for storing output
     if (!initialValues.hasOwnProperty('value')) {
       initialValues.value = (data && data.value) ?? "";
     }
@@ -65,21 +63,15 @@ export const BaseNode = ({ id, data, config, selected }) => {
     setFieldValues(newValues);
     updateNodeField(id, fieldName, value);
 
-    // 🆕 AUTO-CONNECTION LOGIC - Only for fields with {{}} references
     if (value && typeof value === 'string' && value.includes('{{')) {
-      console.log(`📝 Field changed in ${id}.${fieldName}: "${value}"`);
-      
-      // Remove old connections that are no longer referenced
       if (oldValue && oldValue.includes('{{')) {
         removeAutoConnections(id, fieldName, oldValue, value);
       }
       
-      // Create new connections for new references
       setTimeout(() => {
         autoConnectFromReferences(id, fieldName, value);
       }, 100);
     } else if (oldValue && oldValue.includes('{{')) {
-      // Field cleared or changed to non-reference value
       removeAutoConnections(id, fieldName, oldValue, value);
     }
 
@@ -91,6 +83,13 @@ export const BaseNode = ({ id, data, config, selected }) => {
     if (data && data.onChange) {
       data.onChange(id, fieldName, value);
     }
+  };
+
+  const togglePasswordVisibility = (fieldName) => {
+    setShowPasswords(prev => ({
+      ...prev,
+      [fieldName]: !prev[fieldName]
+    }));
   };
 
   const handleIdChange = (e) => {
@@ -152,7 +151,6 @@ export const BaseNode = ({ id, data, config, selected }) => {
     return (
       <div className="vs-token-row">
         {matches.map((variable) => {
-          // Must have format: NodeID.field (specifically NodeID.value)
           const parts = variable.split('.');
           if (parts.length !== 2) {
             return (
@@ -172,10 +170,7 @@ export const BaseNode = ({ id, data, config, selected }) => {
           const sourceNodeId = parts[0];
           const fieldName = parts[1];
           
-          // Check if node exists
           const nodeExists = nodes.some(n => n.id === sourceNodeId);
-          
-          // Must be .value field
           const isValidFormat = fieldName === 'value';
           const isValid = nodeExists && isValidFormat;
           
@@ -209,6 +204,39 @@ export const BaseNode = ({ id, data, config, selected }) => {
             placeholder={field.placeholder}
             onChange={(e) => handleFieldChange(field.name, e.target.value)}
           />
+        );
+
+      case "password":
+        return (
+          <div style={{ position: 'relative' }}>
+            <input
+              type={showPasswords[field.name] ? "text" : "password"}
+              className="vs-node-input"
+              value={value}
+              placeholder={field.placeholder}
+              onChange={(e) => handleFieldChange(field.name, e.target.value)}
+              style={{ paddingRight: '40px' }}
+            />
+            <button
+              type="button"
+              onClick={() => togglePasswordVisibility(field.name)}
+              style={{
+                position: 'absolute',
+                right: '8px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '16px',
+                padding: '4px',
+                color: '#6b7280'
+              }}
+              title={showPasswords[field.name] ? 'Hide' : 'Show'}
+            >
+              {showPasswords[field.name] ? '🙈' : '👁️'}
+            </button>
+          </div>
         );
 
       case "textarea":
@@ -422,6 +450,8 @@ export const BaseNode = ({ id, data, config, selected }) => {
                   ? "Text"
                   : field.type === "select"
                   ? "Dropdown"
+                  : field.type === "password"
+                  ? "Password"
                   : ""}
               </div>
             </div>
